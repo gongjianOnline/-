@@ -4,29 +4,40 @@ const data = JSON.parse(localStorage.getItem('data'))
 const hashMap =data || [
     {
         logo:'a',
-        logoType:'text',
         url:"https://www.acfun.cn"        
     },
     {
-        logo:'./images/bilibili.png',
-        logoType:'img',
-        url:"https://www.bilibili.com/"        
+        logo:'B',
+
+        url:"https://www.bilibili.com"        
     }
-]
+];
+const simplifUrl = (url)=>{
+    return url.replace('http://',"").replace('https://','').replace('www.','').replace(/\/.*/,"")
+}
 
 const render = ()=>{
     $siteList.find('li:not(.last)').remove()
     hashMap.forEach((item,index)=>{
+        console.log(item)
         const $li = $(`
         <li>
-            <a href="${item.url}">
-                <div class="site">
-                    <div class="logo">${item.logo[0]}</div>
-                    <div class="link">${item.url}</div>
-                </div>
-            </a>
+            <div class="site">
+                <div class="logo">${item.logo}</div>
+                <div class="link">${simplifUrl(item.url)}</div>
+                <div class="close">X</div>
+            </div>
         </li>
         `).insertBefore($lastLi)
+        $li.on('click',()=>{
+            window.open(item.url)
+        })
+        $li.on('click',".close",(e)=>{
+            e.stopPropagation() //阻止冒泡
+            console.log(hashMap)
+            hashMap.splice(index,1)
+            render()
+        })
     })
 }
 render()
@@ -39,7 +50,7 @@ $('.addButton').on("click",()=>{
     console.log($lastLi)
     hashMap.push(
         {
-            logo:url[0],
+            logo:simplifUrl(url)[0].toUpperCase(),
             logoType:'text',
             url:url
         }
@@ -53,4 +64,13 @@ window.onbeforeunload = ()=>{
     localStorage.setItem('data',string)
 }
 
+//监听键盘
+$(document).on('keypress',(e)=>{
+    const {key} = e;
+    hashMap.forEach((item,index)=>{
+        if(item.logo.toLowerCase() === key){
+            window.open(item.url)
+        }
+    })
+})
 
